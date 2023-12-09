@@ -1,0 +1,6 @@
+[submodule "MCU/main/LibSSH-ESP32"]
+	path = MCU/main/LibSSH-ESP32
+	url = https://github.com/ewpa/LibSSH-ESP32.git
+[submodule "MCU/main/git_things"]
+	path = MCU/main/git_things
+	url = https://github.com/huxiangjs/git_things.git
