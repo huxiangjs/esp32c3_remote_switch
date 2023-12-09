@@ -1,6 +1,7 @@
 idf_component_register(
 	SRCS
 		"main.c"
+		"app_wifi.c"
 
 		# LibSSH
 		"LibSSH-ESP32/src/agent.c"
