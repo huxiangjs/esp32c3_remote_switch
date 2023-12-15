@@ -22,23 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef __APP_WIFI_H_
-#define __APP_WIFI_H_
-
-#include <stdint.h>
-#include <stdbool.h>
-#include <gitt_ssh.h>
+#ifndef __APP_NVS_H_
+#define __APP_NVS_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-void app_wifi_init(void);
-int app_wifi_connect(const char *ssid, const char *password);
-bool app_wifi_available(void);
+void app_nvs_init(void);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __APP_WIFI_H_ */
+#endif /* __APP_NVS_H_ */

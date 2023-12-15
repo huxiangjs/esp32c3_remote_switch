@@ -1,7 +1,10 @@
 idf_component_register(
 	SRCS
 		"main.c"
+		"app_nvs.c"
 		"app_wifi.c"
+		"app_spiffs.c"
+		"app_gitt.c"
 
 		# LibSSH
 		"LibSSH-ESP32/src/agent.c"
@@ -97,7 +100,6 @@ idf_component_register(
 )
 
 add_definitions(
-
 	# LibSSH
 	-DESP32
 	# -include freertos/FreeRTOS.h
@@ -107,4 +109,7 @@ add_definitions(
 	-Wno-deprecated-declarations
 	-Wno-implicit-fallthrough
 	# -Wno-macro-redefinition
+
+	# zlib
+	-DMAX_MEM_LEVEL=4
 )

@@ -22,23 +22,35 @@
  * SOFTWARE.
  */
 
-#ifndef __APP_WIFI_H_
-#define __APP_WIFI_H_
+#ifndef __APP_GITT_H_
+#define __APP_GITT_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <gitt_ssh.h>
+#include <gitt.h>
+#include <gitt_errno.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-void app_wifi_init(void);
-int app_wifi_connect(const char *ssid, const char *password);
-bool app_wifi_available(void);
+typedef void (*app_gitt_recv)(char *data);
+
+struct app_gitt {
+	struct gitt g;
+	char privkey[1024];
+	char repertory[128];
+	char dev_name[GITT_DEVICE_NAME_SIZE];
+	char dev_id[GITT_DEVICE_ID_SIZE];
+	char wifi_ssid[32];
+	char wifi_password[32];
+	uint8_t buffer[4096];
+	uint8_t interval;
+	app_gitt_recv callback;
+};
+
+int app_gitt_init(struct app_gitt *app, app_gitt_recv call);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __APP_WIFI_H_ */
+#endif /* __APP_GITT_H_ */

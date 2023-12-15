@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef __APP_WIFI_H_
-#define __APP_WIFI_H_
+#ifndef __APP_SPIFFS_H_
+#define __APP_SPIFFS_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -33,12 +33,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-void app_wifi_init(void);
-int app_wifi_connect(const char *ssid, const char *password);
-bool app_wifi_available(void);
+void app_spiffs_init(void);
+int app_spiffs_save(char *name, char *data, int size);
+int app_spiffs_load(char *name, char *buff, int size);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __APP_WIFI_H_ */
+#endif /* __APP_SPIFFS_H_ */
