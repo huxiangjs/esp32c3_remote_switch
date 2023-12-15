@@ -27,6 +27,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
+#include <sys/time.h>
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -44,6 +46,7 @@
 #include "app_wifi.h"
 #include "app_nvs.h"
 #include "app_spiffs.h"
+#include "app_time.h"
 
 #define COMMAND_PREFIX		"GITT"
 #define TAG			"app-main"
@@ -97,6 +100,9 @@ static void app_main_task(void *pvParameters)
 	while (!app_wifi_available())
 		vTaskDelay(1000 / portTICK_PERIOD_MS);
 	printf("Wifi available\n");
+
+	/* Update time from net */
+	app_time_wait_sync();
 
 	/* Auto start */
 	app_state = APP_STATE_SERVER_START;
@@ -154,9 +160,17 @@ static void app_main_task(void *pvParameters)
 
 static void config_show(void)
 {
+	time_t now = 0;
+	struct tm timeinfo = { 0 };
+
+	time(&now);
+	localtime_r(&now, &timeinfo);
+
 	// printf("Wifi SSID     : %s\n", app.wifi_ssid);
 	// printf("Wifi Password : %s\n", app.wifi_password);
 	printf("Wifi state    : %s\n", app_wifi_available() ? "connect" : "disconnect");
+	printf("Time          : %04d/%02d/%02d %02d:%02d:%02d\n", 1900 + timeinfo.tm_year,
+	       timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
 	printf("Device name   : %s\n", app.g.device.name);
 	printf("Device id     : %s\n", app.g.device.id);
 	printf("Loop interval : %d second\n", app.interval);
@@ -471,6 +485,7 @@ void app_main(void)
 	app_nvs_init();
 	app_spiffs_init();
 	app_wifi_init();
+	app_time_init();
 
 	app_spiffs_load("repertory", app.repertory, sizeof(app.repertory));
 	app_spiffs_load("privkey", app.privkey, sizeof(app.privkey));

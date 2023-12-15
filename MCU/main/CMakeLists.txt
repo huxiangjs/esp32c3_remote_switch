@@ -5,6 +5,7 @@ idf_component_register(
 		"app_wifi.c"
 		"app_spiffs.c"
 		"app_gitt.c"
+		"app_time.c"
 
 		# LibSSH
 		"LibSSH-ESP32/src/agent.c"
