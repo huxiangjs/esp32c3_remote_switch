@@ -85,6 +85,10 @@ static EventGroupHandle_t app_event_group;
 
 static volatile int app_response = APP_RESPONSE_NONE;
 
+#define APP_WDT_TIMEOUT			60
+
+static volatile int app_wdt_count = 0;
+
 static void app_gitt_recv_callback(char *data)
 {
 	printf("\nRemote say: %s\n", data);
@@ -124,6 +128,7 @@ static void app_main_task(void *pvParameters)
 				/* Initialize */
 				ret = app_gitt_init(&app, app_gitt_recv_callback);
 				if (ret) {
+					app_wdt_count = 0;
 					vTaskDelay(1000 / portTICK_PERIOD_MS);
 					continue;
 				}
@@ -159,6 +164,8 @@ static void app_main_task(void *pvParameters)
 					count++;
 					if (count >= app.interval)
 						count = 0;
+
+					app_wdt_count = 0;
 				}
 				app_led_red_on();
 			}
@@ -512,6 +519,28 @@ static void chip_info_show(void)
 	printf("Minimum free heap size: %" PRIu32 " bytes\n", esp_get_minimum_free_heap_size());
 }
 
+static void app_wdt_task(void *pvParameters)
+{
+	printf("Application watchdog started\n");
+
+	while (1) {
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+		if (app_state == APP_STATE_SERVER_START)
+			app_wdt_count++;
+		else
+			app_wdt_count = 0;
+
+		if (app_wdt_count >= APP_WDT_TIMEOUT - 5) {
+			ESP_LOGE(TAG, "The service seems to be hung. Reset the system after %d seconds.",
+				 APP_WDT_TIMEOUT - app_wdt_count);
+		}
+
+		if (app_wdt_count == APP_WDT_TIMEOUT)
+			esp_restart();
+	}
+}
+
 void app_main(void)
 {
 	chip_info_show();
@@ -531,6 +560,7 @@ void app_main(void)
 
 	config_show();
 
-	xTaskCreate(app_main_task, "app_main_task", 1024 * 18, NULL, 5, NULL);
-	xTaskCreate(usb_serial_task, "usb_serial_task", 1024 * 6, NULL, 10, NULL);
+	xTaskCreate(app_main_task, "app_main_task", 1024 * 20, NULL, 5, NULL);
+	xTaskCreate(usb_serial_task, "usb_serial_task", 1024 * 8, NULL, 10, NULL);
+	xTaskCreate(app_wdt_task, "app_wdt_task", 1024 * 2, NULL, 11, NULL);
 }
