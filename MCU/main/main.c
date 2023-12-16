@@ -47,16 +47,19 @@
 #include "app_nvs.h"
 #include "app_spiffs.h"
 #include "app_time.h"
+#include "app_led.h"
+#include "app_relay.h"
+#include "app_adc.h"
 
-#define COMMAND_PREFIX		"GITT"
-#define TAG			"app-main"
+#define COMMAND_PREFIX			"GITT"
+#define TAG				"app-main"
 
 static struct app_gitt app = {
 	.g = {
 		/* Set default */
 		.device = {
 			.id = "0000000000000001",
-			.name = "ESP8266 Remote Switch",
+			.name = "ESP32C3 Remote Switch",
 		},
 	},
 	.interval = 5,
@@ -78,15 +81,19 @@ static EventGroupHandle_t app_event_group;
 
 #define APP_RESPONSE_NONE		0
 #define APP_RESPONSE_REPORT_STATE	1
+#define APP_RESPONSE_SWITCH_PRESS	2
 
 static volatile int app_response = APP_RESPONSE_NONE;
 
 static void app_gitt_recv_callback(char *data)
 {
 	printf("\nRemote say: %s\n", data);
-	if (!memcmp("REPORT", data, 6)) {
+	if (!memcmp("STATE", data, 5)) {
 		app_response = APP_RESPONSE_REPORT_STATE;
 		printf("Set response to report_state\n");
+	} else if (!memcmp("PRESS", data, 5)) {
+		app_response = APP_RESPONSE_SWITCH_PRESS;
+		printf("Set response to switch_press\n");
 	}
 }
 
@@ -110,6 +117,8 @@ static void app_main_task(void *pvParameters)
 	while (1) {
 		switch (app_state) {
 		case APP_STATE_SERVER_START:
+			app_led_green_on();
+
 			printf("Server started, interval time: %d second\n", app.interval);
 			xEventGroupSetBits(app_event_group, APP_EVENT_SERVER_STARTED);
 
@@ -133,9 +142,18 @@ static void app_main_task(void *pvParameters)
 
 						/* Response */
 						if (app_response == APP_RESPONSE_REPORT_STATE) {
-							ret = gitt_commit_event(&app.g, "COPY");
+							bool state = app_adc_detect();
+							printf("Detect state: %s\n", state ? "ON" : "OFF");
+							ret = gitt_commit_event(&app.g, state ? "ON" : "OFF");
 							printf("Commit event result: %s\n", GITT_ERRNO_STR(ret));
 							app_response = APP_RESPONSE_NONE;
+							printf("Free heap size: %dbytes\n", esp_get_free_heap_size());
+						} else if (app_response == APP_RESPONSE_SWITCH_PRESS) {
+							app_relay_on(2000);
+							ret = gitt_commit_event(&app.g, "DONE");
+							printf("Commit event result: %s\n", GITT_ERRNO_STR(ret));
+							app_response = APP_RESPONSE_NONE;
+							printf("Free heap size: %dbytes\n", esp_get_free_heap_size());
 						}
 					}
 					vTaskDelay(1000 / portTICK_PERIOD_MS);
@@ -149,6 +167,7 @@ static void app_main_task(void *pvParameters)
 			xEventGroupSetBits(app_event_group, APP_EVENT_SERVER_STOPED);
 			break;
 		case APP_STATE_SERVER_STOP:
+			app_led_red_on();
 			break;
 		}
 
@@ -171,6 +190,8 @@ static void config_show(void)
 	printf("Wifi state    : %s\n", app_wifi_available() ? "connect" : "disconnect");
 	printf("Time          : %04d/%02d/%02d %02d:%02d:%02d\n", 1900 + timeinfo.tm_year,
 	       timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+	printf("Running time  : %u ms\n", esp_log_timestamp());
+	printf("Detect state  : %s\n", app_adc_detect() ? "on" : "off");
 	printf("Device name   : %s\n", app.g.device.name);
 	printf("Device id     : %s\n", app.g.device.id);
 	printf("Loop interval : %d second\n", app.interval);
@@ -481,9 +502,11 @@ static void chip_info_show(void)
 void app_main(void)
 {
 	chip_info_show();
-
 	app_nvs_init();
+	app_led_init();
+	app_relay_init();
 	app_spiffs_init();
+	app_adc_init();
 	app_wifi_init();
 	app_time_init();
 
