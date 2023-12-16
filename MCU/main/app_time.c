@@ -60,8 +60,8 @@ void app_time_wait_sync(void)
 	struct tm timeinfo = { 0 };
 	int retry = 0;
 
-	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET) {
-		ESP_LOGI(TAG, "Waiting for system time to be set... (%d)", retry);
+	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && retry <= 60) {
+		ESP_LOGI(TAG, "Waiting for system time to be set... (%d/60)", retry);
 		vTaskDelay(2000 / portTICK_PERIOD_MS);
 		retry++;
 	}
