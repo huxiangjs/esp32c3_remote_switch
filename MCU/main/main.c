@@ -117,8 +117,6 @@ static void app_main_task(void *pvParameters)
 	while (1) {
 		switch (app_state) {
 		case APP_STATE_SERVER_START:
-			app_led_green_on();
-
 			printf("Server started, interval time: %d second\n", app.interval);
 			xEventGroupSetBits(app_event_group, APP_EVENT_SERVER_STARTED);
 
@@ -130,6 +128,7 @@ static void app_main_task(void *pvParameters)
 					continue;
 				}
 
+				app_led_green_on();
 				count = 0;
 				/* Loop */
 				while (app_state == APP_STATE_SERVER_START) {
@@ -161,13 +160,13 @@ static void app_main_task(void *pvParameters)
 					if (count >= app.interval)
 						count = 0;
 				}
+				app_led_red_on();
 			}
 
 			printf("\nServer stoped\n");
 			xEventGroupSetBits(app_event_group, APP_EVENT_SERVER_STOPED);
 			break;
 		case APP_STATE_SERVER_STOP:
-			app_led_red_on();
 			break;
 		}
 
@@ -175,6 +174,16 @@ static void app_main_task(void *pvParameters)
 	}
 
 	vTaskDelete(NULL);
+}
+
+static void task_show(void)
+{
+	char buffer[2048];
+
+	vTaskList(buffer);
+	printf("NAME\t\tSTATE\tPRIO\tHIGH\tNUMBER\n");
+	printf("----\t\t-----\t----\t----\t------\n");
+	printf("%s", buffer);
 }
 
 static void config_show(void)
@@ -223,6 +232,7 @@ static void help_show(void)
 	printf("  reset                 - Restart the system\n");
 	printf("  start                 - Start server\n");
 	printf("  stop                  - Stop server\n");
+	printf("  task                  - List task information\n");
 	printf("  help                  - Show help message\n");
 }
 
@@ -446,6 +456,9 @@ static void usb_serial_task(void *arg)
 				} else if (index >= 4 && !memcmp("help", buff, 4)) {
 					help_show();
 					index = 0;
+				} else if (index >= 4 && !memcmp("task", buff, 4)) {
+					task_show();
+					index = 0;
 				} else if (index) {
 					printf("Unknown command: %s\n\n", buff);
 					help_show();
@@ -519,5 +532,5 @@ void app_main(void)
 	config_show();
 
 	xTaskCreate(app_main_task, "app_main_task", 1024 * 18, NULL, 5, NULL);
-	xTaskCreate(usb_serial_task, "usb_serial_task", 1024 * 4, NULL, 10, NULL);
+	xTaskCreate(usb_serial_task, "usb_serial_task", 1024 * 6, NULL, 10, NULL);
 }
