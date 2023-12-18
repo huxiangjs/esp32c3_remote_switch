@@ -31,6 +31,7 @@ extern "C" {
 
 void app_time_init(void);
 void app_time_wait_sync(void);
+const char *app_time_get_sync_history(void);
 
 #ifdef __cplusplus
 }

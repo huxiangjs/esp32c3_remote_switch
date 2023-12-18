@@ -204,6 +204,7 @@ static void config_show(void)
 	// printf("Wifi SSID     : %s\n", app.wifi_ssid);
 	// printf("Wifi Password : %s\n", app.wifi_password);
 	printf("Wifi state    : %s\n", app_wifi_available() ? "connect" : "disconnect");
+	printf("Startup time  : %s\n", app_time_get_sync_history());
 	printf("Time          : %04d/%02d/%02d %02d:%02d:%02d\n", 1900 + timeinfo.tm_year,
 	       timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
 	printf("Running time  : %u ms\n", esp_log_timestamp());
