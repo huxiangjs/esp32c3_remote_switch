@@ -81,7 +81,7 @@ int app_gitt_init(struct app_gitt *app, app_gitt_recv call)
 
 	/* Initialize */
 	app->g.privkey = app->privkey;
-	app->g.url = app->repertory;
+	app->g.url = app->repository;
 	app->g.buf = app->buffer;
 	app->g.buf_len = sizeof(app->buffer);
 	app->g.remote_event = app_gitt_remote_event_callback;
@@ -99,8 +99,8 @@ int app_gitt_init(struct app_gitt *app, app_gitt_recv call)
 	if (ret)
 		return ret;
 
-	printf("HEAD: %s\n", app->g.repertory.head);
-	printf("Refs: %s\n", app->g.repertory.refs);
+	printf("HEAD: %s\n", app->g.repository.head);
+	printf("Refs: %s\n", app->g.repository.refs);
 
 	/* Device info */
 	printf("Device name: %s\n", app->g.device.name);

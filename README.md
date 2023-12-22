@@ -45,7 +45,7 @@ idf.py build && idf.py flash
     wifi                  - Modify wifi information and   reconnect
     heap                  - Show free heap space size
     privkey               - Update private key;    ESC:exit  Ctrl+S:save
-    repertory <URL>       - Update repository URL
+    repository <URL>      - Update repository URL
     show                  - Show configuration information
     reset                 - Restart the system
     start                 - Start server
@@ -63,8 +63,8 @@ idf.py build && idf.py flash
   ......
   Connection succeeded
 
-  GITT# repertory git@xxxx:xxxx/xxxx.git # Set repository URL
-  I (218225) app-spiffs: Open: /spiffs/repertory
+  GITT# repository git@xxxx:xxxx/xxxx.git # Set repository URL
+  I (218225) app-spiffs: Open: /spiffs/repository
   I (218235) app-spiffs: File written
   Changed
 
@@ -95,7 +95,7 @@ idf.py build && idf.py flash
   Device name   : ESP32C3 Remote Switch
   Device id     : 0000000000000001
   Loop interval : 5 second
-  Repertory     : git@xxxx:xxxx/xxxx.git
+  Repository    : git@xxxx:xxxx/xxxx.git
   Server state  : running
   Private key   :
   -----BEGIN OPENSSH PRIVATE KEY-----

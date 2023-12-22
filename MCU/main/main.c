@@ -64,7 +64,7 @@ static struct app_gitt app = {
 	},
 	.interval = 5,
 	.privkey = "",
-	.repertory = "",
+	.repository = "",
 	.wifi_ssid = "",
 	.wifi_password =  "",
 };
@@ -212,7 +212,7 @@ static void config_show(void)
 	printf("Device name   : %s\n", app.g.device.name);
 	printf("Device id     : %s\n", app.g.device.id);
 	printf("Loop interval : %d second\n", app.interval);
-	printf("Repertory     : %s\n", app.repertory);
+	printf("Repository    : %s\n", app.repository);
 	printf("Server state  : %s\n", app_state ? "running" : "stoped");
 	printf("Private key   : \n%s\n\n", app.privkey);
 }
@@ -235,7 +235,7 @@ static void help_show(void)
 	printf("  wifi                  - Modify wifi information and reconnect\n");
 	printf("  heap                  - Show free heap space size\n");
 	printf("  privkey               - Update private key;  ESC:exit  Ctrl+S:save\n");
-	printf("  repertory <URL>       - Update repository URL\n");
+	printf("  repository <URL>      - Update repository URL\n");
 	printf("  show                  - Show configuration information\n");
 	printf("  reset                 - Restart the system\n");
 	printf("  start                 - Start server\n");
@@ -433,16 +433,16 @@ static void usb_serial_task(void *arg)
 						app_server_start();
 
 					index = 0;
-				} else if (index >= 9 && !memcmp("repertory", buff, 9)) {
+				} else if (index >= 9 && !memcmp("repository", buff, 9)) {
 					/* If it has already started, stop it first */
 					old_state = app_state;
 					if (app_state == APP_STATE_SERVER_START)
 						app_server_stop();
-					ret = sscanf(buff, "%*s%s", app.repertory);
+					ret = sscanf(buff, "%*s%s", app.repository);
 					if (ret < 1) {
 						printf("Invalid parameter\n");
 					} else {
-						app_spiffs_save("repertory", app.repertory, strlen(app.repertory));
+						app_spiffs_save("repository", app.repository, strlen(app.repository));
 						printf("Changed\n");
 					}
 					if (old_state == APP_STATE_SERVER_START)
@@ -553,7 +553,7 @@ void app_main(void)
 	app_wifi_init();
 	app_time_init();
 
-	app_spiffs_load("repertory", app.repertory, sizeof(app.repertory));
+	app_spiffs_load("repository", app.repository, sizeof(app.repository));
 	app_spiffs_load("privkey", app.privkey, sizeof(app.privkey));
 
 	app_event_group = xEventGroupCreate();

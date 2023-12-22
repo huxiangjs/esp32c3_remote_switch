@@ -77,7 +77,7 @@ idf_component_register(
 		"git_things/src/gitt_misc.c"
 		"git_things/src/gitt_zlib.c"
 		"git_things/src/gitt_command.c"
-		"git_things/src/gitt_repertory.c"
+		"git_things/src/gitt_repository.c"
 		"git_things/src/gitt_commit.c"
 		"git_things/src/gitt_pack.c"
 		"git_things/src/gitt.c"

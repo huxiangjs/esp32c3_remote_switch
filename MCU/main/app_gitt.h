@@ -37,7 +37,7 @@ typedef void (*app_gitt_recv)(char *data);
 struct app_gitt {
 	struct gitt g;
 	char privkey[1024];
-	char repertory[128];
+	char repository[128];
 	char dev_name[GITT_DEVICE_NAME_SIZE];
 	char dev_id[GITT_DEVICE_ID_SIZE];
 	char wifi_ssid[32];
