@@ -80,8 +80,8 @@ static volatile uint8_t app_state = APP_STATE_SERVER_STOP;
 static EventGroupHandle_t app_event_group;
 
 #define APP_RESPONSE_NONE		0
-#define APP_RESPONSE_REPORT_STATE	1
-#define APP_RESPONSE_SWITCH_PRESS	2
+#define APP_RESPONSE_REPORT		1
+#define APP_RESPONSE_PRESS		2
 
 static volatile int app_response = APP_RESPONSE_NONE;
 
@@ -92,12 +92,12 @@ static volatile int app_wdt_count = 0;
 static void app_gitt_recv_callback(char *data)
 {
 	printf("\nRemote say: %s\n", data);
-	if (!memcmp("STATE", data, 5)) {
-		app_response = APP_RESPONSE_REPORT_STATE;
-		printf("Set response to report_state\n");
+	if (!memcmp("REPORT", data, 5)) {
+		app_response = APP_RESPONSE_REPORT;
+		printf("Set response to report\n");
 	} else if (!memcmp("PRESS", data, 5)) {
-		app_response = APP_RESPONSE_SWITCH_PRESS;
-		printf("Set response to switch_press\n");
+		app_response = APP_RESPONSE_PRESS;
+		printf("Set response to press\n");
 	}
 }
 
@@ -145,16 +145,16 @@ static void app_main_task(void *pvParameters)
 							break;
 
 						/* Response */
-						if (app_response == APP_RESPONSE_REPORT_STATE) {
-							bool state = app_adc_detect();
+						if (app_response == APP_RESPONSE_REPORT ||
+						    app_response == APP_RESPONSE_PRESS) {
+							bool state;
+
+							if (app_response == APP_RESPONSE_PRESS)
+								app_relay_on(2000);
+
+							state = app_adc_detect();
 							printf("Detect state: %s\n", state ? "ON" : "OFF");
-							ret = gitt_commit_event(&app.g, state ? "ON" : "OFF");
-							printf("Commit event result: %s\n", GITT_ERRNO_STR(ret));
-							app_response = APP_RESPONSE_NONE;
-							printf("Free heap size: %dbytes\n", esp_get_free_heap_size());
-						} else if (app_response == APP_RESPONSE_SWITCH_PRESS) {
-							app_relay_on(2000);
-							ret = gitt_commit_event(&app.g, "DONE");
+							ret = gitt_commit_event(&app.g, state ? "STATE ON" : "STATE OFF");
 							printf("Commit event result: %s\n", GITT_ERRNO_STR(ret));
 							app_response = APP_RESPONSE_NONE;
 							printf("Free heap size: %dbytes\n", esp_get_free_heap_size());
