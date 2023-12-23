@@ -115,6 +115,12 @@ static void app_main_task(void *pvParameters)
 	/* Update time from net */
 	app_time_wait_sync();
 
+	/* Wait repository vaild */
+	printf("Wait repository vaild...\n");
+	while (!strlen(app.repository) || !strlen(app.privkey))
+		vTaskDelay(1000 / portTICK_PERIOD_MS);
+	printf("Repository vaild\n");
+
 	/* Auto start */
 	app_state = APP_STATE_SERVER_START;
 
