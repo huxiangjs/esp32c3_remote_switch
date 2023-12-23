@@ -1,6 +1,9 @@
 # ESP32-C3 Remote Switch
 A remote switch implemented using the gitt library, used for remote booting of the computer host.
 
+## PCB View
+![top](Images/product_view.png)
+
 ## Basic environment
 ```shell
 idf.py --version
@@ -108,3 +111,23 @@ idf.py build && idf.py flash
 1. The console does not support deletion operations. If you make an input error, please start again.
 2. Wifi only supports connection to the 2.4G frequency band.
 3. After testing, both GitHub and Gitee can be used. Currently, only the git protocol and private key access to the repository are supported, and repository creation and private key generation check this: [Steps](https://github.com/huxiangjs/git_things/blob/main/examples/README.md). **Just read the first and second paragraphs of the Steps section.**
+
+## Burn the released bin file
+
+1. Download the latest release zip package from the Releases column
+2. Unzip the zip and you will see the following files:
+   ```
+   $ tree
+   .
+   |-- bootloader
+   |   `-- bootloader.bin
+   |-- esp32c3_remote_switch.bin
+   |-- flash_args
+   `-- partition_table
+       `-- partition-table.bin
+
+   2 directories, 4 files
+   ```
+3. Open the latest official download tool `flash_download_tool` (official download address: [other-tools](https://www.espressif.com/en/support/download/other-tools))
+4. Use the following options: (1) `Chip Type [ESP32-C3]`; (2) `WorkMode [Develop]`; (3) `LoadMode [USB]`;
+5. According to the content of the `flash_args` file, configure the burning file, address and flash type. Keep the default selection for places not mentioned, and finally click **Start** to burn
